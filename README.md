@@ -1,7 +1,8 @@
-# Correcting Length Bias: Pivoted Document Length Normalization (Group 15)
+# Correcting Length Bias: Pivoted Document Length Normalization
 
-A TF–IDF retrieval engine that compares cosine normalization with pivoted cosine
-normalization on 100 English Press Club articles.
+**Group 15** | Information Retrieval course project | Anushka Doshi, Ashutosh Desai
+
+A TF–IDF retrieval engine that compares cosine normalization with pivoted cosine normalization on 100 English Press Club articles.
 
 ## Setup
 
