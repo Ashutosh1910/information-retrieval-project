@@ -20,6 +20,8 @@ python run_engine.py search "students union election commission" --k 10
 python run_cranfield.py
 python check_labels.py
 python run_epc.py
+python run_attacks.py
+python plot_attacks.py
 ```
 
 - `run_engine.py stats` shows statistics for the collection and the index.
@@ -28,6 +30,9 @@ python run_epc.py
   `frozen_slope.json`.
 - `check_labels.py` checks the relevance labels and writes `qrels.csv`.
 - `run_epc.py` compares cosine and pivoted on the EPC queries and writes `results/epc/`.
+- `run_attacks.py` runs the attack experiments (keyword repetition, unrelated padding
+  and both combined) and writes `results/attacks/`.
+- `plot_attacks.py` draws the attack figures from `results/attacks/` into `docs/figures/`.
 
 ## Repository
 
@@ -41,9 +46,12 @@ irengine/
   data.py                       loading articles, queries and labels
   cranfield.py                  Cranfield data, query splits, slope choice
   significance.py               paired randomization test
+  attacks.py                    attack targets, edits and rescoring
 run_engine.py                   command-line runner
 run_cranfield.py                slope selection on Cranfield
 run_epc.py                      main EPC evaluation
+run_attacks.py                  attack experiments
+plot_attacks.py                 attack figures
 check_labels.py                 label checks
 articles.json, articles.csv     the 100 articles
 queries.json                    the 12 queries with descriptions

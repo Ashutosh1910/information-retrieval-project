@@ -1,1 +1,2 @@
 ir_datasets==0.6.3  # Cranfield (run_cranfield.py)
+matplotlib          # attack plots (plot_attacks.py)
