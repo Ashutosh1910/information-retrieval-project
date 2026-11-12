@@ -1,5 +1,6 @@
 import argparse
 import csv
+import json
 from pathlib import Path
 
 import matplotlib
@@ -84,11 +85,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--results", default=ROOT / "results" / "attacks")
     parser.add_argument("--out", default=ROOT / "docs" / "figures")
+    parser.add_argument("--name", default="attack", help="file name prefix")
     args = parser.parse_args(argv)
     res, out = Path(args.results), Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     levels = read(res / "levels.csv")
     groups = read(res / "by_group.csv")
+    summary = json.loads((res / "summary.json").read_text(encoding="utf-8"))
+    n_queries = len(summary["query_terms"])
+    # MAP covers only the queries with a relevant article
+    n_eval = n_queries - len(summary.get("queries_without_relevant", []))
     n_targets = int(value(levels, "trials", attack="repeat x5", method="cosine"))
     n_long = int(value(groups, "trials", attack="repeat x5", method="cosine", length_group="long"))
     xs = list(range(4))
@@ -106,7 +112,7 @@ def main(argv=None):
     fig.suptitle("Keyword repetition: share of edited articles that enter the top 10",
                  x=0.01, ha="left", fontsize=10.5, color=INK)
     fig.tight_layout()
-    save(fig, out, "attack_repetition")
+    save(fig, out, f"{args.name}_repetition")
 
     fig, axes = plt.subplots(1, 2, figsize=(7.6, 2.9))
     ratio = {m: [value(levels, "mean_score_ratio", attack=f"pad {p}%", method=m) for p in PADS] for m in METHODS}
@@ -120,7 +126,7 @@ def main(argv=None):
     fig.suptitle("Unrelated padding: no trial entered the top 10 under either method",
                  x=0.01, ha="left", fontsize=10.5, color=INK)
     fig.tight_layout()
-    save(fig, out, "attack_padding")
+    save(fig, out, f"{args.name}_padding")
 
     grid = {m: [[value(levels, "success_pct", attack=f"repeat x{k} + pad {p}%", method=m) for p in PADS]
                 for k in REPS] for m in METHODS}
@@ -153,7 +159,7 @@ def main(argv=None):
     fig.suptitle(f"Combined attack: repetition plus padding ({n_targets} targets per cell)",
                  x=0.01, ha="left", fontsize=10.5, color=INK)
     fig.tight_layout()
-    save(fig, out, "attack_combined")
+    save(fig, out, f"{args.name}_combined")
 
     diag = [f"repeat x{k} + pad {p}%" for k, p in zip(REPS, PADS)]
     panels = (
@@ -164,7 +170,7 @@ def main(argv=None):
     fig, axes = plt.subplots(1, 3, figsize=(9.2, 2.9), sharey=True)
     for i, (ax, (title, labels, ticks)) in enumerate(zip(axes, panels)):
         series = {m: [value(levels, "mean_d_map", attack=a, method=m) for a in labels] for m in METHODS}
-        lines(ax, xs, series, ticks, "mean ΔMAP (12 queries)" if i == 0 else "", title,
+        lines(ax, xs, series, ticks, f"mean ΔMAP ({n_eval} queries)" if i == 0 else "", title,
               ylim=(-0.026, 0.004), label_ends=(i == 2))
         ax.axhline(0, color=AXIS, lw=0.8, zorder=1)
         if i == 2:
@@ -172,9 +178,53 @@ def main(argv=None):
     fig.suptitle("Change in MAP from one edited article (vs each method's clean MAP)",
                  x=0.01, ha="left", fontsize=10.5, color=INK)
     fig.tight_layout()
-    save(fig, out, "attack_quality")
+    save(fig, out, f"{args.name}_quality")
 
-    print(f"wrote {out}/attack_{{repetition,padding,combined,quality}}.{{png,pdf}}")
+    names = ["repetition", "padding", "combined", "quality"]
+    # Only runs with queries that have no relevant article write this file
+    if (res / "by_query_type.csv").exists():
+        types = read(res / "by_query_type.csv")
+        n_with = int(value(types, "trials", attack="repeat x5", method="cosine", query_has_relevant=1))
+        n_without = int(value(types, "trials", attack="repeat x5", method="cosine", query_has_relevant=0))
+        # Solid lines for queries with a relevant article, dashed for queries without
+        kind = {1: dict(ls="-", mfc=None), 0: dict(ls=(0, (3, 2)), mfc=SURFACE)}
+        tag = {1: f"has relevant (n = {n_with})", 0: f"no relevant (n = {n_without})"}
+        panels = (
+            ("Repetition: entered top 10 (%)", [f"repeat x{k}" for k in REPS], rep_labels,
+             "success_pct", (90, 101.5), "query terms appended"),
+            ("Combined (diagonal): entered top 10 (%)", diag, [f"×{k}+{p}%" for k, p in zip(REPS, PADS)],
+             "success_pct", (90, 101.5), "repetitions + padding"),
+            ("Padding: median rank change", [f"pad {p}%" for p in PADS], pad_labels,
+             "median_rank_change", None, "padding, % of original length"),
+        )
+        fig, axes = plt.subplots(1, 3, figsize=(9.6, 3.2))
+        for ax, (title, attacks, ticks, key, ylim, xlabel) in zip(axes, panels):
+            for has in (1, 0):
+                for m in ("pivoted", "cosine"):
+                    ys = [value(types, key, attack=a, method=m, query_has_relevant=has) for a in attacks]
+                    ax.plot(xs, ys, color=COLOR[m], marker=MARKER[m], ls=kind[has]["ls"],
+                            lw=2.0 if m == "pivoted" else 1.3, ms=6.5 if m == "pivoted" else 4.5,
+                            markeredgecolor=COLOR[m] if has == 0 else SURFACE, markeredgewidth=1.0,
+                            markerfacecolor=kind[has]["mfc"] or COLOR[m],
+                            zorder=3 if m == "pivoted" else 4, label=f"{m}, {tag[has]}")
+            ax.set_xticks(xs, ticks)
+            ax.set_xlim(xs[0] - 0.3, xs[-1] + 0.3)
+            if ylim:
+                ax.set_ylim(*ylim)
+            ax.set_title(title, loc="left", color=INK)
+            ax.set_xlabel(xlabel)
+            if key == "median_rank_change":
+                ax.axhline(0, color=AXIS, lw=0.8, zorder=1)
+        axes[1].tick_params(axis="x", labelsize=7.5)
+        handles, labels = axes[0].get_legend_handles_labels()
+        fig.legend(handles, labels, loc="lower center", ncol=2, fontsize=8, bbox_to_anchor=(0.5, -0.1))
+        fig.suptitle("Queries with a relevant article (solid) vs queries with none (dashed, open markers)",
+                     x=0.01, ha="left", fontsize=10.5, color=INK)
+        fig.tight_layout()
+        save(fig, out, f"{args.name}_query_type")
+        names.append("query_type")
+
+    print(f"wrote {out}/{args.name}_{{{','.join(names)}}}.{{png,pdf}}")
 
 
 if __name__ == "__main__":

@@ -15,15 +15,40 @@ K = 10
 GROUPS = ("short", "medium", "long")
 
 
-def load_frozen_labels():
-    record = json.loads((ROOT / "labels_frozen.json").read_text(encoding="utf-8"))
+# Query files and their frozen label records; extended adds Q13-Q40
+LABEL_SETS = {
+    "main": [("queries.json", "labels_frozen.json")],
+    "extended": [("queries.json", "labels_frozen.json"),
+                 ("queries_extended.json", "labels_frozen_extended.json")],
+}
+
+
+def load_frozen_labels(record_name="labels_frozen.json"):
+    record = json.loads((ROOT / record_name).read_text(encoding="utf-8"))
     path = ROOT / record["file"]
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     # Refuse to run if the frozen labels changed
     if digest != record["sha256"]:
-        sys.exit(f"{path.name} does not match the checksum frozen in labels_frozen.json; "
+        sys.exit(f"{path.name} does not match the checksum frozen in {record_name}; "
                  "the labels changed after the freeze.")
     return path, record
+
+
+def load_query_set(name, known_doc_ids):
+    queries, qrels, labels = {}, {}, []
+    for qfile, record_name in LABEL_SETS[name]:
+        # Every label file must still match its frozen checksum
+        path, record = load_frozen_labels(record_name)
+        part_q = load_queries(ROOT / qfile)
+        part_r = load_qrels(path, known_doc_ids=known_doc_ids)
+        if set(part_q) & set(queries) or set(part_r) & set(qrels):
+            sys.exit(f"{qfile} repeats a query ID from an earlier file")
+        if set(part_r) != set(part_q):
+            sys.exit(f"{path.name} does not label exactly the queries in {qfile}")
+        queries.update(part_q)
+        qrels.update(part_r)
+        labels.append({k: record[k] for k in ("file", "sha256", "frozen_on", "relevant")})
+    return queries, qrels, labels
 
 
 def length_groups(articles):
@@ -47,21 +72,22 @@ def mean(xs):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--out", default=ROOT / "results" / "epc")
+    parser.add_argument("--queries", choices=sorted(LABEL_SETS), default="main",
+                        help="main: Q1-Q12; extended: Q1-Q40 (adds queries_extended.json)")
+    parser.add_argument("--out", default=None,
+                        help="default results/epc (main) or results/epc_extended (extended)")
     args = parser.parse_args(argv)
 
-    qrels_path, label_record = load_frozen_labels()
     s = float(json.loads((ROOT / "frozen_slope.json").read_text(encoding="utf-8"))["s"])
 
     articles = load_articles(ROOT / "articles.json")
     by_id = {a["document_id"]: a for a in articles}
     words = {d: int(a["word_count"]) for d, a in by_id.items()}
     index = InvertedIndex(index_documents(articles))
-    queries = load_queries(ROOT / "queries.json")
-    qrels = load_qrels(qrels_path, known_doc_ids=set(index.doc_ids))
-    print(f"EPC: {index.N} articles, {len(queries)} queries, labels {qrels_path.name} "
-          f"(frozen {label_record['frozen_on']}, {label_record['relevant']} relevant), "
-          f"pivot p = {index.pivot:.6f}, frozen s = {s:g}")
+    queries, qrels, labels = load_query_set(args.queries, set(index.doc_ids))
+    print(f"EPC: {index.N} articles, {len(queries)} queries, labels "
+          + ", ".join(f"{x['file']} (frozen {x['frozen_on']}, {x['relevant']} relevant)" for x in labels)
+          + f", pivot p = {index.pivot:.6f}, frozen s = {s:g}")
 
     systems = {"cosine": None, "pivoted": s}
     # Full rankings for both methods
@@ -80,8 +106,10 @@ def main(argv=None):
     better = sum(a > b for a, b in zip(ap["pivoted"], ap["cosine"]))
     worse = sum(a < b for a, b in zip(ap["pivoted"], ap["cosine"]))
 
-    print(f"\nAverages over {len(evaluated)} queries (none without relevant documents: "
-          f"{not evals['cosine'].no_relevant})")
+    empty = [q.query_id for q in evals["cosine"].no_relevant]
+    print(f"\nAverages over {len(evaluated)} queries"
+          + (f"; {len(empty)} with no relevant article are left out: {', '.join(empty)}" if empty
+             else " (every query has a relevant article)"))
     print(f"  {'system':<10}{'P@10':>8}{'R@10':>8}{'F1@10':>8}{'MAP':>8}")
     for name, ev in evals.items():
         print(f"  {name:<10}{ev.mean_precision:>8.4f}{ev.mean_recall:>8.4f}{ev.mean_f1:>8.4f}{ev.map:>8.4f}")
@@ -98,6 +126,27 @@ def main(argv=None):
 
     # Length groups and their share of top-10 slots
     group, bounds = length_groups(articles)
+
+    # Queries with no relevant article have no metrics; report their top 10 instead
+    empty_rows = []
+    for q in empty:
+        tc, tp = rankings["cosine"][q][:K], rankings["pivoted"][q][:K]
+        empty_rows.append({
+            "query_id": q, "text": queries[q], "retrieved": len(rankings["cosine"][q]),
+            "top10_overlap": len(set(tc) & set(tp)),
+            **{f"top10_mean_words_{name}": mean(words[d] for d in t) for name, t in (("cosine", tc), ("pivoted", tp))},
+            **{f"top10_{g}_{name}": sum(group[d] == g for d in t)
+               for name, t in (("cosine", tc), ("pivoted", tp)) for g in GROUPS},
+        })
+    if empty_rows:
+        print("\nQueries with no relevant article (no metrics; what each method puts in the top 10)")
+        print(f"  {'query':<6}{'retrieved':>10}{'overlap':>9}{'mean words c/p':>18}"
+              f"{'short/medium/long cos':>23}{'piv':>9}")
+        for r in empty_rows:
+            print(f"  {r['query_id']:<6}{r['retrieved']:>10}{r['top10_overlap']:>6}/10"
+                  f"{r['top10_mean_words_cosine'] or 0:>10,.0f}/{r['top10_mean_words_pivoted'] or 0:<7,.0f}"
+                  f"{'/'.join(str(r[f'top10_{g}_cosine']) for g in GROUPS):>16}"
+                  f"{'/'.join(str(r[f'top10_{g}_pivoted']) for g in GROUPS):>16}")
     sizes = {g: sum(1 for d in group if group[d] == g) for g in GROUPS}
     print("\nLength groups (body word count, before stopword removal)")
     for g in GROUPS:
@@ -172,7 +221,7 @@ def main(argv=None):
                 print(f"    {label:<7} {x['doc']} ({x['words']:,} words, {x['group']}, "
                       f"{'relevant' if x['relevant'] else 'not relevant'}): rank {x['rank_cosine']} -> {x['rank_pivoted']}")
 
-    out = Path(args.out)
+    out = Path(args.out or ROOT / "results" / ("epc" if args.queries == "main" else "epc_extended"))
     out.mkdir(parents=True, exist_ok=True)
     with open(out / "per_query.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
@@ -185,7 +234,7 @@ def main(argv=None):
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["query_id", "system", "rank", "document_id", "score", "words", "length_group", "relevant"])
         for name in systems:
-            for q in evaluated:
+            for q in queries:
                 for i, (d, sc) in enumerate(runs[name][q][:K], 1):
                     w.writerow([q, name, i, d, sc, words[d], group[d], int(d in qrels[q])])
     with open(out / "length_groups.csv", "w", newline="", encoding="utf-8") as f:
@@ -198,9 +247,9 @@ def main(argv=None):
         for d in index.doc_ids:
             w.writerow([d, words[d], group[d], index.norms[index.position[d]]])
     summary = {
-        "labels": {"file": qrels_path.name, "sha256": label_record["sha256"], "relevant": label_record["relevant"]},
+        "query_set": args.queries, "labels": labels,
         "slope": s, "pivot": index.pivot, "k": K, "queries_evaluated": len(evaluated),
-        "no_relevant_queries": [q.query_id for q in evals["cosine"].no_relevant],
+        "no_relevant_queries": empty_rows,
         "systems": {name: {"P@10": ev.mean_precision, "R@10": ev.mean_recall, "F1@10": ev.mean_f1, "MAP": ev.map}
                     for name, ev in evals.items()},
         "ap_better_worse_equal": [better, worse, len(evaluated) - better - worse],

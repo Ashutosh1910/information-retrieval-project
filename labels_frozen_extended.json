@@ -1,0 +1,56 @@
+{
+  "file": "qrels_extended.csv",
+  "sha256": "b359df9b1444f343df1708faad76896a5385e65f5bf6a079c8adac2d8979f31b",
+  "frozen_on": "2026-11-07",
+  "queries": "Q13-Q40 (queries_extended.json)",
+  "pairs": 2800,
+  "relevant": 49,
+  "relevant_per_query": {
+    "Q13": 3,
+    "Q14": 5,
+    "Q15": 1,
+    "Q16": 2,
+    "Q17": 1,
+    "Q18": 1,
+    "Q19": 2,
+    "Q20": 4,
+    "Q21": 4,
+    "Q22": 4,
+    "Q23": 2,
+    "Q24": 2,
+    "Q25": 1,
+    "Q26": 3,
+    "Q27": 1,
+    "Q28": 4,
+    "Q29": 2,
+    "Q30": 3,
+    "Q31": 1,
+    "Q32": 1,
+    "Q33": 0,
+    "Q34": 0,
+    "Q35": 0,
+    "Q36": 0,
+    "Q37": 0,
+    "Q38": 2,
+    "Q39": 0,
+    "Q40": 0
+  },
+  "no_relevant_queries": [
+    "Q33",
+    "Q34",
+    "Q35",
+    "Q36",
+    "Q37",
+    "Q39",
+    "Q40"
+  ],
+  "source_counts": {
+    "llm": 2784,
+    "manual": 16
+  },
+  "review_completed": "all 16 uncertain pairs (stage 'uncertain' in manual_labels_extended.csv); 4 changed, all to relevant",
+  "review_not_done": [
+    "LLM-positive pairs outside the uncertain set",
+    "random sample of negatives per query"
+  ]
+}

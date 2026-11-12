@@ -1,0 +1,170 @@
+[
+  {
+    "query_id": "Q13",
+    "length_group": "small",
+    "text": "practice school",
+    "description": "The user wants to understand the Practice School programme (PS-I and PS-II): how stations are allotted, what the work involves, stipends, eligibility and students' experiences. Articles that mention PS only in a list or as a course requirement, without explaining it, do not meet the need."
+  },
+  {
+    "query_id": "Q14",
+    "length_group": "small",
+    "text": "redis",
+    "description": "The user wants reviews and descriptions of the redis, the food stalls attached to each bhawan: what they serve, prices, timings and which are worth visiting. Articles about the hostel mess or other outlets such as ANC and Looters are not what the user wants."
+  },
+  {
+    "query_id": "Q15",
+    "length_group": "small",
+    "text": "semester abroad",
+    "description": "The user wants information on the semester-abroad programme run by IPCD: eligibility, how to apply, costs and the benefits of studying at a foreign university for a semester. Articles about off-campus theses are not what the user wants unless they substantively cover the semester-abroad programme."
+  },
+  {
+    "query_id": "Q16",
+    "length_group": "small",
+    "text": "TEDx",
+    "description": "The user wants to know about the TEDx BITS Pilani events: who the speakers were, what the talks covered and how the event was organised. Articles that mention TEDx only in passing do not meet the need."
+  },
+  {
+    "query_id": "Q17",
+    "length_group": "small",
+    "text": "campus surveillance",
+    "description": "The user wants to know about security and surveillance measures on campus, such as frisking at the gate, room inspections, CCTV and verification calls, and how students reacted to them. Articles that mention guards or security only in passing do not meet the need."
+  },
+  {
+    "query_id": "Q18",
+    "length_group": "small",
+    "text": "sexual harassment",
+    "description": "The user wants to know how sexual harassment is dealt with on campus: the Internal Complaints Committee, how to file a complaint, the institute's policy and awareness efforts. Articles that mention harassment only briefly do not meet the need."
+  },
+  {
+    "query_id": "Q19",
+    "length_group": "medium",
+    "text": "off-campus thesis application",
+    "description": "The user wants to know how to find and apply for a thesis at an institution outside BITS: timelines, eligibility, how to contact professors and students' tips from their own applications. Articles about the semester-abroad programme are not what the user wants."
+  },
+  {
+    "query_id": "Q20",
+    "length_group": "medium",
+    "text": "first-year course guide",
+    "description": "A first-year student wants course-by-course advice on the first-year courses: what each covers, how hard it is, how it is graded and how to prepare. Humanities electives are not what the user wants, and general campus guides count only if they substantively describe first-year courses."
+  },
+  {
+    "query_id": "Q21",
+    "length_group": "medium",
+    "text": "summer internship experiences",
+    "description": "The user wants to know how students get summer internships, what the work is like, the companies and stipends involved, and students' own experiences of interning. Articles about final placements, or about Practice School only, are not what the user wants."
+  },
+  {
+    "query_id": "Q22",
+    "length_group": "medium",
+    "text": "SU financial mismanagement allegations",
+    "description": "The user wants to know about the allegations of financial mismanagement made against the Students' Union: what was alleged, the evidence, and how the SU, the CRC and other bodies responded. Articles about other disputes that do not involve the SU's handling of money do not meet the need."
+  },
+  {
+    "query_id": "Q23",
+    "length_group": "medium",
+    "text": "water and power shortage",
+    "description": "The user wants to know about the water scarcity and power cuts on campus: their causes, how they affected students and how the administration responded. Articles that mention water or electricity only in passing do not meet the need."
+  },
+  {
+    "query_id": "Q24",
+    "length_group": "medium",
+    "text": "history of campus clubs",
+    "description": "The user wants to know about the history of clubs and student bodies at BITS Pilani: when they were founded, how they began and how they changed over the years. Articles that describe a club's current activities without its history do not meet the need."
+  },
+  {
+    "query_id": "Q25",
+    "length_group": "medium",
+    "text": "spot round admissions process",
+    "description": "The user wants to understand how admissions to the first-degree programmes are run, including the counselling iterations and spot rounds, and how students were allotted seats. Articles that mention BITSAT or admissions only in passing do not meet the need."
+  },
+  {
+    "query_id": "Q26",
+    "length_group": "large",
+    "text": "what do tech teams at bits pilani build and how can a fresher join one",
+    "description": "The user wants to know about the student technical teams: what projects they build, the competitions they enter and how new students are recruited. Articles about technical departments of fests, or about tech culture only in general terms, do not meet the need unless they substantively describe the teams."
+  },
+  {
+    "query_id": "Q27",
+    "length_group": "large",
+    "text": "how did the covid vaccination drive for students work before the campus reopened",
+    "description": "The user wants to know how COVID-19 vaccination was organised for students: who could get vaccinated, how the drive was run and how it was tied to reopening the campus. Articles about the online semester that do not discuss vaccination are not what the user wants."
+  },
+  {
+    "query_id": "Q28",
+    "length_group": "large",
+    "text": "what research did alumni and professors describe and how can undergraduates get involved in research",
+    "description": "The user wants accounts of research by BITS alumni and faculty, such as talks and interviews describing their work, and advice on how undergraduates can start doing research. Articles where research is mentioned only in a speaker's biography do not meet the need."
+  },
+  {
+    "query_id": "Q29",
+    "length_group": "large",
+    "text": "what happened at the apogee review meet and what was decided about the department of live events",
+    "description": "The user wants to know what was discussed at the APOGEE Review Meet, including the dispute involving the Department of Live Events, the allegations on each side and the verdict that followed. Articles about other fest review meets are not what the user wants."
+  },
+  {
+    "query_id": "Q30",
+    "length_group": "large",
+    "text": "what questions were the president and general secretary candidates asked at the auditorium debate",
+    "description": "The user wants to know what happened at the Auditorium Debate (Audi Rag): the questions the panel put to the presidential and general secretary candidates and how they answered. Articles about the election process in general, or candidate interviews outside the debate, are not what the user wants."
+  },
+  {
+    "query_id": "Q31",
+    "length_group": "large",
+    "text": "who can enrol in the new bsc computational degree and how is the programme structured",
+    "description": "The user wants to know about the BSc degree in computational subjects offered by BITS: who can enrol, the admission criteria, how the programme is structured and why it was introduced. Articles that mention other degree programmes without describing this one do not meet the need."
+  },
+  {
+    "query_id": "Q32",
+    "length_group": "large",
+    "text": "what is junoon and how do students volunteer at the event for specially abled children",
+    "description": "The user wants to know about Junoon, the NSS event for specially abled children: what happens at it, how it is organised and funded, and how students take part as volunteers. Articles that mention NSS or Junoon only in passing do not meet the need."
+  },
+  {
+    "query_id": "Q33",
+    "length_group": "small",
+    "text": "ragging",
+    "description": "The user wants to know about ragging on campus: whether incidents happen, how freshers are protected, and the anti-ragging rules, committee and penalties. Articles about the Auditorium Debate, which students call the Audi Rag, are not about ragging and do not meet the need."
+  },
+  {
+    "query_id": "Q34",
+    "length_group": "small",
+    "text": "hostel wifi",
+    "description": "The user wants to know about Wi-Fi and internet access in the hostels: speed, coverage, outages, network restrictions and what has been done to improve them. Articles that mention Wi-Fi only as a single promise or list item do not meet the need."
+  },
+  {
+    "query_id": "Q35",
+    "length_group": "small",
+    "text": "MBA preparation",
+    "description": "The user wants advice on preparing for an MBA after graduating from BITS: entrance exams such as CAT or GMAT, applications, and how students balance preparation with their degree. Articles that mention an MBA only as someone's qualification or as one option among many do not meet the need."
+  },
+  {
+    "query_id": "Q36",
+    "length_group": "medium",
+    "text": "drug and alcohol policy",
+    "description": "The user wants to know the campus rules on drugs and alcohol: what is prohibited, how it is enforced, the penalties and any support or awareness programmes. Articles that mention drugs or alcohol only in passing do not meet the need."
+  },
+  {
+    "query_id": "Q37",
+    "length_group": "medium",
+    "text": "student health insurance claims",
+    "description": "The user wants to know how the student health insurance (Mediclaim) policy works: what it covers, how to file a claim and students' experiences of claiming. Articles that mention insurance only as an election promise or list item do not meet the need."
+  },
+  {
+    "query_id": "Q38",
+    "length_group": "medium",
+    "text": "hackathon results and prizes",
+    "description": "The user wants to know the results of hackathons held at or entered by BITS Pilani: which teams won, what they built and the prizes they received. Articles that mention hackathons only as a type of event do not meet the need."
+  },
+  {
+    "query_id": "Q39",
+    "length_group": "large",
+    "text": "how do students apply for a phd at bits pilani and what stipend do phd scholars receive",
+    "description": "The user wants to know how PhD admissions at BITS Pilani work, including eligibility, the application and selection process, and the stipend or fellowship PhD scholars receive. Articles that mention a professor's own PhD, or PhD students only in passing, do not meet the need."
+  },
+  {
+    "query_id": "Q40",
+    "length_group": "large",
+    "text": "what happens at the convocation ceremony and how do graduating students collect their degree certificates",
+    "description": "The user wants to know about the convocation at BITS Pilani: how the ceremony is conducted, who attends, and how graduating students receive their degree certificates. Articles about other ceremonies such as fest inaugurations or the Oath Ceremony do not meet the need."
+  }
+]
